@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}JD Details | {{ jd.title }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'ats:dashboard' %}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center mb-4">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Back to Dashboard
+    </a>
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ jd.title }}</h1>
+            <p class="text-gray-500 mt-1">Created {{ jd.created_at|date:"M d, Y" }}</p>
+        </div>
+        <button onclick="window.print()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md shadow-sm text-sm font-medium transition flex items-center">
+            <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Export Report
+        </button>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- JD Info Sidebar -->
+    <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4">Required Skills</h3>
+            <div class="flex flex-wrap gap-2">
+                {% for skill in jd.extracted_skills %}
+                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    {{ skill|title }}
+                </span>
+                {% empty %}
+                <span class="text-sm text-gray-500">No skills extracted.</span>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-2">Required Experience</h3>
+            <p class="text-2xl font-bold text-gray-800">{{ jd.extracted_experience|default:"Not specified" }} <span class="text-sm font-normal text-gray-500">years</span></p>
+        </div>
+    </div>
+    
+    <!-- Leaderboard -->
+    <div class="lg:col-span-3">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">Candidate Leaderboard</h2>
+                <span class="text-sm text-gray-500">{{ rankings|length }} candidates ranked</span>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidate</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Match Score</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skill Match Analysis</th>
+                            <th scope="col" class="relative px-6 py-3">
+                                <span class="sr-only">View</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for rank in rankings %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">
+                                #{{ forloop.counter }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ rank.candidate.name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2 max-w-[4rem]">
+                                        <div class="h-2.5 rounded-full {% if rank.score >= 80 %}bg-green-500{% elif rank.score >= 50 %}bg-yellow-400{% else %}bg-red-500{% endif %}" style="width: {{ rank.score|floatformat:0 }}%"></div>
+                                    </div>
+                                    <span class="text-sm font-bold {% if rank.score >= 80 %}text-green-600{% elif rank.score >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">{{ rank.score|floatformat:1 }}%</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col gap-1 max-w-xs">
+                                    {% if rank.skill_match_details.matched %}
+                                    <div class="flex flex-wrap gap-1">
+                                        {% for skill in rank.skill_match_details.matched|slice:":3" %}
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-800">{{ skill|title }}</span>
+                                        {% endfor %}
+                                        {% if rank.skill_match_details.matched|length > 3 %}
+                                        <span class="text-xs text-gray-500">+{{ rank.skill_match_details.matched|length|add:"-3" }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                    {% if rank.skill_match_details.missing %}
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        {% for skill in rank.skill_match_details.missing|slice:":2" %}
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-50 text-red-700 line-through opacity-75">{{ skill|title }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="{% url 'ats:candidate_detail' rank.candidate.id %}" class="text-indigo-600 hover:text-indigo-900">View Details</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                No candidates found or resumes haven't been processed yet. 
+                                <br>
+                                <a href="{% url 'ats:upload_resumes' %}" class="text-indigo-600 hover:underline mt-2 inline-block">Upload resumes</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

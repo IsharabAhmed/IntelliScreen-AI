@@ -21,43 +21,36 @@ IntelliScreen AI is a production-grade machine learning web application built wi
 - **Task Queue**: Celery + Redis
 - **Containerization**: Docker & Docker Compose
 
-## 🚀 Quick Start (1-Click Run)
+## 🚀 Quick Start (Single-Command Run - No Docker Needed)
 
-The application is completely Dockerized and includes all NLP models, database setup, and message brokers out-of-the-box. 
+You can launch the complete application with **a single command** without Docker, Redis, or PostgreSQL dependencies:
 
-You can launch the entire stack (PostgreSQL DB, Redis Server, Celery Worker, and Django Web Server) with **a single command**:
+```bash
+python run.py
+```
+*(On Windows, you can also double-click or run `run.bat`; on Linux/macOS, `./run.sh`)*
 
+**What this single command does automatically:**
+1. Verifies and downloads required NLP models (`spacy en_core_web_sm` and NLTK packages).
+2. Applies all database migrations automatically (`SQLite`).
+3. Ensures a default admin user is ready (`admin` / `admin`).
+4. Configures background parsing to run synchronously (`CELERY_TASK_ALWAYS_EAGER`).
+5. Starts the web server on `http://127.0.0.1:8000`.
+
+### Accessing the Application
+
+Once started, open your web browser to:
+- **URL**: `http://localhost:8000`
+- **Username**: `admin`
+- **Password**: `admin`
+
+## Docker Setup (Optional)
+
+If you prefer to run with Docker Compose:
 ```bash
 docker-compose up --build
 ```
 
-**What this command does automatically:**
-1. Installs all Python dependencies and heavy ML packages (`spacy`, `scikit-learn`, `pandas`).
-2. Downloads the required English NLP models (`en_core_web_sm`, `nltk punkt`).
-3. Provisions a local PostgreSQL database and Redis message broker.
-4. **Applies all database migrations automatically.**
-5. **Creates a default admin superuser** so you can log in immediately.
-
-### Accessing the Application
-
-Once the command finishes building and you see the `web` and `celery` containers running in your terminal:
-- Open your browser and navigate to: `http://localhost:8000`
-- **Username**: `admin`
-- **Password**: `admin`
-
-## Development / Manual Setup
-
-If you wish to run the app natively without Docker (e.g. for development), ensure you have Redis running on your machine, then follow these steps:
-
-1. Create and activate a virtual environment: `python -m venv venv` and `source venv/bin/activate` (or `.\venv\Scripts\Activate.ps1` on Windows)
-2. Install requirements: `pip install -r requirements.txt`
-3. Download NLP Models:
-   - `python -m spacy download en_core_web_sm`
-   - `python -m nltk.downloader punkt stopwords punkt_tab`
-4. Run migrations: `python manage.py migrate`
-5. Create superuser: `python manage.py createsuperuser`
-6. Start Celery: `celery -A resume_screener worker -l info`
-7. Start Server: `python manage.py runserver`
 
 ## Testing
 

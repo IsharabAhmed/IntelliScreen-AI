@@ -1,59 +1,58 @@
 {% extends 'base.html' %}
 
-{% block title %}Upload Resumes{% endblock %}
+{% block title %}Upload Resumes — IntelliScreen AI{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto">
     <div class="mb-6">
-        <a href="{% url 'ats:dashboard' %}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center mb-4">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        <a href="{% url 'ats:dashboard' %}" class="inline-flex items-center text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors mb-3 group">
+            <svg class="w-4 h-4 mr-1 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             Back to Dashboard
         </a>
-        <h1 class="text-3xl font-bold text-gray-900">Upload Resumes</h1>
-        <p class="text-gray-500 mt-1">Batch upload candidate resumes for automated processing and extraction.</p>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Upload Candidate Resumes</h1>
+        <p class="text-sm text-slate-500 mt-1">Batch upload PDF or Word documents for automated parsing, skill extraction, and scoring.</p>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-md border border-slate-200/80 overflow-hidden">
         <form method="post" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6">
             {% csrf_token %}
             
-            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                <div class="space-y-1 text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="flex text-sm text-gray-600 justify-center">
-                        <label for="resumes" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
-                            <span>Upload files</span>
+            <div class="border-2 border-dashed border-slate-200 hover:border-indigo-500 rounded-2xl p-8 text-center transition-colors bg-slate-50/50 hover:bg-indigo-50/20 group cursor-pointer" id="drop-zone">
+                <div class="space-y-3">
+                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    </div>
+                    <div class="text-sm text-slate-600">
+                        <label for="resumes" class="relative cursor-pointer font-bold text-indigo-600 hover:text-indigo-700">
+                            <span>Click to upload files</span>
                             <input id="resumes" name="resumes" type="file" class="sr-only" multiple accept=".pdf,.doc,.docx" required>
                         </label>
-                        <p class="pl-1">or drag and drop</p>
+                        <span class="text-slate-400"> or drag and drop</span>
                     </div>
-                    <p class="text-xs text-gray-500">
-                        PDF, DOC, DOCX up to 10MB each
+                    <p class="text-xs text-slate-400">
+                        Supported formats: <span class="font-semibold text-slate-600">PDF, DOC, DOCX</span> (up to 10MB per file)
                     </p>
-                    <div id="file-list" class="mt-4 text-sm text-gray-700 text-left bg-gray-50 p-3 rounded hidden max-h-40 overflow-y-auto"></div>
+                    
+                    <div id="file-list" class="mt-4 text-xs text-slate-700 text-left bg-white border border-slate-200 p-4 rounded-xl hidden max-h-48 overflow-y-auto space-y-2"></div>
                 </div>
             </div>
             
-            <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-blue-700">
-                            Resumes are processed asynchronously in the background. You can navigate away once the upload completes.
-                        </p>
-                    </div>
+            <div class="bg-indigo-50/80 border border-indigo-100 rounded-xl p-4 flex items-start gap-3">
+                <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div class="text-xs text-indigo-900 leading-relaxed">
+                    <span class="font-bold">Asynchronous Processing:</span> Resumes are processed in real time. Once uploaded, candidate vectors will automatically reflect across all active job description leaderboards.
                 </div>
             </div>
 
-            <div class="pt-4 border-t border-gray-100 flex justify-end">
-                <button type="submit" class="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Upload & Process
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+                <a href="{% url 'ats:dashboard' %}" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-md shadow-indigo-600/20 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    Upload & Process Resumes
                 </button>
             </div>
         </form>
@@ -66,17 +65,24 @@
         fileList.innerHTML = '';
         if (this.files.length > 0) {
             fileList.classList.remove('hidden');
-            let ul = document.createElement('ul');
-            ul.className = 'list-disc pl-5';
+            let header = document.createElement('div');
+            header.className = 'font-bold text-slate-900 border-b border-slate-100 pb-2 mb-2 flex justify-between items-center';
+            header.innerHTML = `Selected Files (${this.files.length})`;
+            fileList.appendChild(header);
+
             for (let i = 0; i < this.files.length; i++) {
-                let li = document.createElement('li');
-                li.textContent = this.files[i].name;
-                ul.appendChild(li);
+                let div = document.createElement('div');
+                div.className = 'flex items-center justify-between py-1 px-2 hover:bg-slate-50 rounded-lg';
+                div.innerHTML = `
+                    <span class="truncate font-medium text-slate-700 max-w-xs">${this.files[i].name}</span>
+                    <span class="text-[10px] bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded-full">${(this.files[i].size / 1024).toFixed(1)} KB</span>
+                `;
+                fileList.appendChild(div);
             }
-            fileList.appendChild(ul);
         } else {
             fileList.classList.add('hidden');
         }
     });
 </script>
 {% endblock %}
+
